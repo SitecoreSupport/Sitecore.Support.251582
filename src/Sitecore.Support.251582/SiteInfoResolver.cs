@@ -18,7 +18,7 @@
       {
         BaseSiteContextFactory service = ServiceLocator.ServiceProvider.GetService<BaseSiteContextFactory>();
         return _sites ?? (_sites = from s in service.GetSites()
-                                   where s.EnablePreview
+                                   where s.Properties.AllKeys.Contains("IsSxaSite")
                                    orderby s.RootPath descending
                                    select s);
       }
