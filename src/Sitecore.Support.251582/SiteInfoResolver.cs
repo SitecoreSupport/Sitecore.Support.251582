@@ -2,10 +2,13 @@
 {
   using Microsoft.Extensions.DependencyInjection;
   using Sitecore.Abstractions;
+  using Sitecore.Data.Items;
   using Sitecore.DependencyInjection;
   using Sitecore.Web;
+  using Sitecore.XA.Foundation.Multisite.Extensions;
   using System.Collections.Generic;
   using System.Linq;
+  using System.Web;
 
   public class SiteInfoResolver : Sitecore.XA.Foundation.Multisite.SiteInfoResolver
   {
@@ -18,10 +21,52 @@
       {
         BaseSiteContextFactory service = ServiceLocator.ServiceProvider.GetService<BaseSiteContextFactory>();
         return _sites ?? (_sites = from s in service.GetSites()
-                                   where s.Properties.AllKeys.Contains("IsSxaSite")
                                    orderby s.RootPath descending
                                    select s);
       }
+    }
+
+    public override SiteInfo GetSiteInfo(Item item)
+    {
+      if (item != null)
+      {
+        SiteInfo[] possibleSites = base.DiscoverPossibleSites(item);
+        if (item.IsSxaSite())
+        {
+          possibleSites = possibleSites.Where(x => x.Properties.AllKeys.Contains("IsSxaSite")).ToArray();
+        }
+        else
+        {
+          possibleSites = possibleSites.Where(x => x.Properties.AllKeys.Contains("enablePreview")).ToArray();
+        }
+        if (possibleSites.Length <= 1)
+        {
+          return possibleSites.FirstOrDefault();
+        }
+        if (HttpContext.Current != null)
+        {
+          SiteInfo siteFromQuery = base.ResolveSiteFromQuery(possibleSites, HttpContext.Current.Request);
+          if (siteFromQuery != null)
+          {
+            return siteFromQuery;
+          }
+        }
+        SiteInfo fromSitecore = possibleSites.FirstOrDefault((SiteInfo s) => Context.Site != null && s.Name == Context.Site.Name);
+        if (fromSitecore != null)
+        {
+          return fromSitecore;
+        }
+        if (HttpContext.Current != null)
+        {
+          SiteInfo siteInfo = base.ResolveSiteFromRequest(possibleSites, new HttpRequestWrapper(HttpContext.Current.Request));
+          if (siteInfo != null)
+          {
+            return siteInfo;
+          }
+        }
+        return possibleSites.FirstOrDefault((SiteInfo s) => base.LanguagesMatch(s, item)) ?? possibleSites.FirstOrDefault();
+      }
+      return null;
     }
   }
 }

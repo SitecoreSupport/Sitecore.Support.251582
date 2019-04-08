@@ -50,6 +50,10 @@
       <HintPath>..\packages\SC.Sitecore.Kernel.8.2.7\lib\Sitecore.Kernel.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Sitecore.XA.Foundation.Abstractions, Version=3.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SXA90.Sitecore.XA.Foundation.Abstractions.1.7.1\lib\Sitecore.XA.Foundation.Abstractions.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Sitecore.XA.Foundation.Common">
       <HintPath>..\packages\SXA82.Sitecore.XA.Foundation.Common.1.7.1\lib\Sitecore.XA.Foundation.Common.dll</HintPath>
       <Private>False</Private>
