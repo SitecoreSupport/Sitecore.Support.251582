@@ -68,5 +68,11 @@
       }
       return null;
     }
+
+    public override void Reset()
+    {
+      _sites = null;
+      base.Reset();
+    }
   }
 }
